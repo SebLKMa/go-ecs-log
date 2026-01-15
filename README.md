@@ -8,6 +8,29 @@ https://pkg.go.dev/gopkg.in/go-extras/elogrus.v7@v7.3.0
 
 https://www.elastic.co/docs/deploy-manage/deploy/self-managed/install-elasticsearch-docker-basic#_start_a_single_node_cluster  
 
+```sh
+docker network create elastic
+```
+
+```sh
+docker run --name es01 --net elastic -p 9200:9200 -it -m 1GB docker.elastic.co/elasticsearch/elasticsearch:9.2.4
+```
+
+```sh
+docker exec -it es01 /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic
+```
+
+```sh
+docker cp es01:/usr/share/elasticsearch/config/certs/http_ca.crt .
+```
+
+```sh
+docker exec -it es01 /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana
+```
+
+```sh
+docker run --name kib01 --net elastic -p 5601:5601 docker.elastic.co/kibana/kibana:9.2.4
+```
 
 ## ERROR: Elasticsearch died while starting up, with exit code 78
 https://community.sonarsource.com/t/cant-start-docker-container-due-to-elasticsearch-bootstrap-error/132921

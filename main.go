@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"fmt"
 	"os"
 
 	"github.com/elastic/go-elasticsearch/v7"
@@ -24,7 +24,7 @@ func console() {
 func hook() error {
 	cert, err := os.ReadFile("/home/ubuntu/http_ca.crt")
 	if err != nil {
-		log.Fatalf("Error reading CA certificate: %s", err)
+		return fmt.Errorf("error reading CA certificate: %s", err)
 	}
 
 	cfg := elasticsearch.Config{
@@ -32,7 +32,7 @@ func hook() error {
 			"https://localhost:9200", // Use https for secure connections
 		},
 		Username: "elastic",              // Your Elasticsearch username
-		Password: "xSdhglJ_4ohN1IpByxtv", // Your Elasticsearch password
+		Password: "WoPUMrxXFSDZv*rw2ol6", // Your Elasticsearch password
 		CACert:   cert,                   // Provide the CA certificate bytes here
 	}
 
@@ -51,7 +51,7 @@ func hook() error {
 
 	log := logrus.New()
 	log.SetFormatter(&ecslogrus.Formatter{})
-	hook, err := elogrus.NewAsyncElasticHook(client, "localhost", logrus.DebugLevel, "mylog")
+	hook, err := elogrus.NewAsyncElasticHook(client, "localhost", logrus.DebugLevel, "logs-mylog")
 	if err != nil {
 		return err
 	}
@@ -64,11 +64,12 @@ func hook() error {
 	log.Info("Hello info, ECS logging from elastic hook")
 	log.Error("Hello error, ECS logging from elastic hook")
 
+	defer hook.Cancel()
 	return nil
 }
 
 func main() {
-	console()
+	//console()
 	err := hook()
 	if err != nil {
 		panic(err)
