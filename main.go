@@ -52,7 +52,7 @@ func hooklog1() error {
 
 	log := logrus.New()
 	log.SetOutput(os.Stdout) // elasticsearch receives from stdout by default
-	log.SetFormatter(&ecslogrus.Formatter{})
+	//log.SetFormatter(&ecslogrus.Formatter{})
 	log.SetLevel(logrus.DebugLevel)
 	hook, err := elogrus.NewAsyncElasticHook(client, "localhost", logrus.DebugLevel, "mylog")
 	if err != nil {
@@ -66,10 +66,27 @@ func hooklog1() error {
 	//	"age":  42,
 	//}).Error("Hello from log hook")
 
-	log.Debug("Debug ECS logging from elastic hook")
-	log.Info("Info ECS logging from elastic hook")
-	log.Warn("Warning ECS logging from elastic hook")
-	log.Error("Error ECS logging from elastic hook")
+	// anonymous struct
+	//msg := struct {
+	//	Message   string `json:"message"`
+	//	Timestamp int64  `json:"timestamp"`
+	//}{}
+	msg := struct {
+		Message   string
+		Timestamp int64
+	}{}
+	msg.Message = "hello!"
+	msg.Timestamp = time.Now().UnixNano()
+	log.Debugf("elastic hook log: %#v", msg)
+	msg.Message = "bonjour!"
+	msg.Timestamp = time.Now().UnixNano()
+	log.Infof("elastic hook log: %#v", msg)
+	msg.Message = "hola!"
+	msg.Timestamp = time.Now().UnixNano()
+	log.Warnf("elastic hook log: %#v", msg)
+	msg.Message = "oops!"
+	msg.Timestamp = time.Now().UnixNano()
+	log.Errorf("elastic hook log: %#v", msg)
 
 	// Give some time for asynchronous logs to be sent
 	time.Sleep(2 * time.Second)
