@@ -13,7 +13,7 @@ docker network create elastic
 ```
 
 ```sh
-docker run --name es01 --net elastic -p 9200:9200 -it -m 1GB docker.elastic.co/elasticsearch/elasticsearch:9.2.4
+docker run -d --name es01 --net elastic -p 9200:9200 -it -m 1GB docker.elastic.co/elasticsearch/elasticsearch:9.2.4
 ```
 
 ```sh
@@ -29,7 +29,7 @@ docker exec -it es01 /usr/share/elasticsearch/bin/elasticsearch-create-enrollmen
 ```
 
 ```sh
-docker run --name kib01 --net elastic -p 5601:5601 docker.elastic.co/kibana/kibana:9.2.4
+docker run -d --name kib01 --net elastic -p 5601:5601 docker.elastic.co/kibana/kibana:9.2.4
 ```
 
 ## ERROR: Elasticsearch died while starting up, with exit code 78
