@@ -52,7 +52,7 @@ func hooklog1() error {
 
 	log := logrus.New()
 	log.SetOutput(os.Stdout) // elasticsearch receives from stdout by default
-	//log.SetFormatter(&ecslogrus.Formatter{})
+	log.SetFormatter(&ecslogrus.Formatter{})
 	log.SetLevel(logrus.DebugLevel)
 	hook, err := elogrus.NewAsyncElasticHook(client, "localhost", logrus.DebugLevel, "mylog")
 	if err != nil {
@@ -75,6 +75,7 @@ func hooklog1() error {
 		Message   string
 		Timestamp int64
 	}{}
+	log.Info("Logging started")
 	msg.Message = "hello!"
 	msg.Timestamp = time.Now().UnixNano()
 	log.Debugf("elastic hook log: %#v", msg)
@@ -87,6 +88,7 @@ func hooklog1() error {
 	msg.Message = "oops!"
 	msg.Timestamp = time.Now().UnixNano()
 	log.Errorf("elastic hook log: %#v", msg)
+	log.Info("Logging ended")
 
 	// Give some time for asynchronous logs to be sent
 	time.Sleep(2 * time.Second)
