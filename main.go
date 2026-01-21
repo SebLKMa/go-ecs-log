@@ -61,10 +61,11 @@ func hooklog1() error {
 	log.Hooks.Add(hook)
 	defer hook.Cancel()
 
-	//log.WithFields(logrus.Fields{
-	//	"name": "joe",
-	//	"age":  42,
-	//}).Error("Hello from log hook")
+	// Check if you can create views for fields in kibana
+	log.WithFields(logrus.Fields{
+		"myfield1": "joe",
+		"myfield2": 42,
+	}).Error("Hello from log hook")
 
 	// anonymous struct
 	//msg := struct {
