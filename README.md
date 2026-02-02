@@ -99,3 +99,27 @@ POST /mylog/_delete_by_query
   }
 }
 ```
+
+## Hiding fields in Summary of Kibana
+
+Try this first, per Data View:  
+https://www.elastic.co/docs/explore-analyze/discover/discover-get-started  
+
+This is for global setting:  
+To hide the
+_id field in Kibana's Discover table, you need to adjust the advanced settings within the UI. 
+Steps to Hide the _id Field
+
+    Navigate to Management: From the main Kibana menu, go to Stack Management (or just "Management" in older versions).
+    Open Advanced Settings: Under the "Kibana" section, select Advanced Settings.
+    Locate the MetaFields setting: Search for the setting named metaFields (or meta:fields in some older versions).
+    Edit the list: This setting lists fields that exist outside of the _source and are merged into the document when displayed. The default value typically includes _source, _id, _type, _index, and _score.
+    Remove _id: Edit the list and remove _id from the comma-separated values.
+    Save Changes: Click the Save or Save changes button to apply the modification. 
+
+After saving, the _id field should no longer appear as a column in the Discover tab's main table view.
+
+
+## References
+
+https://last9.io/blog/understanding-logrus/  
