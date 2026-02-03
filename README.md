@@ -123,3 +123,94 @@ After saving, the _id field should no longer appear as a column in the Discover 
 ## References
 
 https://last9.io/blog/understanding-logrus/  
+
+## Azure ElasticSearch
+
+Example 1:  
+```go
+package main
+
+import (
+	"github.com/olivere/elastic/v7"
+	"github.com/sirupsen/logrus"
+	"gopkg.in/go-extras/elogrus.v7"
+	"context"
+)
+
+func main() {
+	log := logrus.New()
+
+	// 1. Configure ES Client for Azure
+	// Replace with your Azure Elasticsearch URL and API Key
+	client, err := elastic.NewClient(
+		elastic.SetURL("https://<your-azure-endpoint>.elastic.cloud:9243"), // Example URL
+		elastic.SetBasicAuth("elastic", "your-api-key"), // Or other auth methods
+		elastic.SetSniff(false), // Often needed for cloud services
+		elastic.SetErrorLog(log),
+	)
+	if err != {
+		log.Panic(err)
+	}
+
+	// 2. Create the Logrus Hook
+	hook, err := elogrus.NewAsyncElasticHook(client, "https://<your-azure-endpoint>", logrus.DebugLevel, "my-azure-app-logs")
+	if err != {
+		log.Panic(err)
+	}
+
+	// 3. Add the hook to the logger
+	log.Hooks.Add(hook)
+
+	// 4. Log messages
+	log.WithFields(logrus.Fields{"user": "testuser", "action": "login"}).Info("User logged in successfully")
+	log.Error("An error occurred during processing")
+
+	// Keep application running briefly to allow logs to send
+	// time.Sleep(2 * time.Second)
+}
+```
+
+Example 2:  
+```go
+// 1. Import necessary packages
+import (
+	"github.com/elastic/go-elasticsearch/v8" // Or appropriate v7/v8 client
+	"github.com/sirupsen/logrus"
+	"gopkg.in/go-extras/elogrus.v8" // Use v8 for newer ES clients
+)
+
+func main() {
+	log := logrus.New() // Create a new logrus logger
+
+	// 2. Create Elasticsearch Client for Azure
+	// Configure with your Azure Elasticsearch endpoint (e.g., https://your-instance.eastus2.azure.elastic.co:9200)
+	// You might need to handle authentication (API Key/Basic Auth) here as well.
+	esClient, err := elasticsearch.NewClient(elasticsearch.Config{
+		Addresses: []string{"https://YOUR_AZURE_ENDPOINT"},
+		// Add Auth configs if needed:
+		// Username: "elastic",
+		// Password: "your_password",
+		// APIKey:   "your_api_key",
+	})
+	if err != nil {
+		log.Panicf("Error creating Elasticsearch client: %v", err)
+	}
+
+	// 3. Create the Async Elastic Hook
+	// Use 'elogrus.NewAsyncElasticHook' for async processing
+	// Host parameter is often used for dynamic index naming in some implementations,
+	// but the client handles the connection.
+	hook, err := elogrus.NewAsyncElasticHook(esClient, "azure-logs", logrus.InfoLevel, "my-azure-index")
+	if err != nil {
+		log.Panicf("Error creating ElasticHook: %v", err)
+	}
+
+	// 4. Add the hook to the logger
+	log.Hooks.Add(hook)
+
+	// 5. Log messages (they go to Azure asynchronously)
+	log.WithFields(logrus.Fields{"user": "john_doe", "action": "login"}).Info("User logged in successfully")
+	log.WithField("error", "connection_failed").Error("Failed to connect to service")
+}
+
+```
