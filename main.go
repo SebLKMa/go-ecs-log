@@ -120,7 +120,7 @@ func hooklog1() error {
 	return nil
 }
 
-func addLoggerHook(theLogger *logrus.Logger, asyncHook bool) (logrus.Hook, error) {
+func addElasticHook(theLogger *logrus.Logger, indexName string, asyncHook bool) (logrus.Hook, error) {
 	cert, err := os.ReadFile("/home/ubuntu/http_ca.crt")
 	if err != nil {
 		return nil, fmt.Errorf("error reading CA certificate: %s", err)
@@ -144,10 +144,10 @@ func addLoggerHook(theLogger *logrus.Logger, asyncHook bool) (logrus.Hook, error
 	// To view logs in kibana Observability Logs, the undex name follows logs-* pattern
 	var hook *elogrus.ElasticHook
 	if asyncHook {
-		hook, err = elogrus.NewAsyncElasticHook(client, "localhost", logrus.DebugLevel, "logs-mylog")
+		hook, err = elogrus.NewAsyncElasticHook(client, "localhost", logrus.DebugLevel, indexName)
 		fmt.Printf("ElasticHook async %v\n", asyncHook)
 	} else {
-		hook, err = elogrus.NewElasticHook(client, "localhost", logrus.DebugLevel, "logs-mylog")
+		hook, err = elogrus.NewElasticHook(client, "localhost", logrus.DebugLevel, indexName)
 		fmt.Printf("ElasticHook async %v\n", asyncHook)
 	}
 
@@ -175,13 +175,10 @@ func main() {
 	*/
 
 	// Add hook to logger
-	_, err := addLoggerHook(MyLogger, true)
+	_, err := addElasticHook(MyLogger, "logs-mylog", true)
 	if err != nil {
 		panic(err)
 	}
-
-	// Common logged fields
-	//myLogEntry := MyLogger.WithFields(logrus.Fields{"ts": timestampNow()})
 
 	// anonymous struct to test logging an object
 	msg := struct {
@@ -204,6 +201,8 @@ func main() {
 	MyLogger.WithField("ts", timestampNow()).Errorf("MyLogger: %#v", msg)
 	MyLogger.WithField("ts", timestampNow()).Info("Logging ended")
 
+	// Common logged static fields
+	//myLogEntry := MyLogger.WithFields(logrus.Fields{"fieldname": "fieldvalue"})
 	/*
 		myLogEntry.Info("Logging started")
 		msg.Message = "hello!"
