@@ -42,6 +42,9 @@ func (lw *LoggerWrapper) Initialize() {
 	fmt.Println("InternalLogger created")
 }
 
+// TODO
+// https://stackoverflow.com/questions/63658002/is-it-possible-to-wrap-logrus-logger-functions-without-losing-the-line-number-pr
+
 func (lw *LoggerWrapper) Error(args ...interface{}) {
 	lw.InternalLogger.WithField("ts", timestampNow()).Error(args...)
 }
