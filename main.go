@@ -5,34 +5,31 @@ import (
 	"os"
 	"time"
 
-	nestedlogrus "github.com/antonfisher/nested-logrus-formatter"
 	"github.com/elastic/go-elasticsearch/v7"
+	"github.com/seblkma/go-ecs-log/util"
 	"github.com/sirupsen/logrus"
 	"go.elastic.co/ecslogrus"
 	"gopkg.in/go-extras/elogrus.v7"
 )
 
-var MyLogger *logrus.Logger
+var MyLogger util.LoggerWrapper
 
 func init() {
-	MyLogger = logrus.New()
-	MyLogger.SetOutput(os.Stdout) // elasticsearch receives from stdout by default
-	MyLogger.SetLevel(logrus.DebugLevel)
+	/*
+		MyLogger = logrus.New()
+		MyLogger.SetOutput(os.Stdout)
+		MyLogger.SetLevel(logrus.DebugLevel)
 
-	// Formatter
-	//log.SetFormatter(&ecslogrus.Formatter{})
-	//MyLogger.SetFormatter(&logrus.TextFormatter{
-	//	TimestampFormat: "2006-01-02 15:04:05",
-	//})
+		MyLogger.SetFormatter(&nestedlogrus.Formatter{
+			HideKeys: true,
+			NoColors:        true,
+			TrimMessages:    true,
+			TimestampFormat: "2006-01-02 15:04:05",
+		})
+		MyLogger.SetReportCaller(true)
+	*/
 
-	MyLogger.SetFormatter(&nestedlogrus.Formatter{
-		HideKeys: true,
-		//FieldsOrder: []string{"component", "category"},
-		NoColors:        true,
-		TrimMessages:    true,
-		TimestampFormat: "2006-01-02 15:04:05",
-	})
-	MyLogger.SetReportCaller(true) // log method name by default
+	MyLogger.Initialize()
 
 	fmt.Println("MyLogger created")
 }
@@ -120,49 +117,6 @@ func hooklog1() error {
 	return nil
 }
 
-func addElasticHook(theLogger *logrus.Logger, indexName string, asyncHook bool) (logrus.Hook, error) {
-	cert, err := os.ReadFile("/home/ubuntu/http_ca.crt")
-	if err != nil {
-		return nil, fmt.Errorf("error reading CA certificate: %s", err)
-	}
-
-	cfg := elasticsearch.Config{
-		Addresses: []string{
-			"https://localhost:9200", // Use https for secure connections
-		},
-		Username: "elastic",              // Your Elasticsearch username
-		Password: "uCl8kHO51qymS79WPzNK", // Your Elasticsearch password
-		CACert:   cert,                   // Provide the CA certificate bytes here
-	}
-
-	client, err := elasticsearch.NewClient(cfg)
-	if err != nil {
-		return nil, err
-	}
-
-	// Async hooks mean un-ordered messages dispatch
-	// To view logs in kibana Observability Logs, the undex name follows logs-* pattern
-	var hook *elogrus.ElasticHook
-	if asyncHook {
-		hook, err = elogrus.NewAsyncElasticHook(client, "localhost", logrus.DebugLevel, indexName)
-		fmt.Printf("ElasticHook async %v\n", asyncHook)
-	} else {
-		hook, err = elogrus.NewElasticHook(client, "localhost", logrus.DebugLevel, indexName)
-		fmt.Printf("ElasticHook async %v\n", asyncHook)
-	}
-
-	if err != nil {
-		return nil, err
-	}
-	theLogger.Hooks.Add(hook)
-
-	return hook, nil
-}
-
-func timestampNow() int64 {
-	return time.Now().UnixNano()
-}
-
 func main() {
 	//console()
 
@@ -175,7 +129,7 @@ func main() {
 	*/
 
 	// Add hook to logger
-	_, err := addElasticHook(MyLogger, "logs-mylog", true)
+	_, err := MyLogger.AddElasticHook("logs-mylog", true)
 	if err != nil {
 		panic(err)
 	}
@@ -186,20 +140,38 @@ func main() {
 		Timestamp int64
 	}{}
 
-	MyLogger.WithField("ts", timestampNow()).Info("Logging started")
+	MyLogger.Info("Logging started")
 	msg.Message = "hello!"
 	msg.Timestamp = time.Now().UnixNano()
-	MyLogger.WithField("ts", timestampNow()).Debugf("MyLogger: %#v", msg)
+	MyLogger.Debugf("MyLogger: %#v", msg)
 	msg.Message = "bonjour!"
 	msg.Timestamp = time.Now().UnixNano()
-	MyLogger.WithField("ts", timestampNow()).Infof("MyLogger: %#v", msg)
+	MyLogger.Infof("MyLogger: %#v", msg)
 	msg.Message = "hola!"
 	msg.Timestamp = time.Now().UnixNano()
-	MyLogger.WithField("ts", timestampNow()).Warnf("MyLogger: %#v", msg)
+	MyLogger.Warnf("MyLogger: %#v", msg)
 	msg.Message = "oops!"
 	msg.Timestamp = time.Now().UnixNano()
-	MyLogger.WithField("ts", timestampNow()).Errorf("MyLogger: %#v", msg)
-	MyLogger.WithField("ts", timestampNow()).Info("Logging ended")
+	MyLogger.Errorf("MyLogger: %#v", msg)
+	MyLogger.Info("Logging ended")
+
+	// Without logger wrapper
+	/*
+		MyLogger.WithField("ts", timestampNow()).Info("Logging started")
+		msg.Message = "hello!"
+		msg.Timestamp = time.Now().UnixNano()
+		MyLogger.WithField("ts", timestampNow()).Debugf("MyLogger: %#v", msg)
+		msg.Message = "bonjour!"
+		msg.Timestamp = time.Now().UnixNano()
+		MyLogger.WithField("ts", timestampNow()).Infof("MyLogger: %#v", msg)
+		msg.Message = "hola!"
+		msg.Timestamp = time.Now().UnixNano()
+		MyLogger.WithField("ts", timestampNow()).Warnf("MyLogger: %#v", msg)
+		msg.Message = "oops!"
+		msg.Timestamp = time.Now().UnixNano()
+		MyLogger.WithField("ts", timestampNow()).Errorf("MyLogger: %#v", msg)
+		MyLogger.WithField("ts", timestampNow()).Info("Logging ended")
+	*/
 
 	// Common logged static fields
 	//myLogEntry := MyLogger.WithFields(logrus.Fields{"fieldname": "fieldvalue"})
