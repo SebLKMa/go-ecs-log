@@ -214,3 +214,8 @@ func main() {
 }
 
 ```
+
+## A Local Sample Kibana
+
+![kibana-sample](./kibana-sample.png)  
+
