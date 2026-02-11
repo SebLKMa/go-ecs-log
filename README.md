@@ -32,6 +32,13 @@ docker exec -it es01 /usr/share/elasticsearch/bin/elasticsearch-create-enrollmen
 docker run -d --name kib01 --net elastic -p 5601:5601 docker.elastic.co/kibana/kibana:9.2.4
 ```
 
+```sh
+docker stop kib01
+docker stop es01
+docker rm kib01
+docker rm es01
+```
+
 ## ERROR: Elasticsearch died while starting up, with exit code 78
 https://community.sonarsource.com/t/cant-start-docker-container-due-to-elasticsearch-bootstrap-error/132921
 

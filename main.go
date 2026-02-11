@@ -15,6 +15,7 @@ import (
 var MyLogger util.LoggerWrapper
 
 func init() {
+	// Moved to loggerwrapper
 	/*
 		MyLogger = logrus.New()
 		MyLogger.SetOutput(os.Stdout)
@@ -117,6 +118,42 @@ func hooklog1() error {
 	return nil
 }
 
+func testFunc3() {
+	MyLogger.Info("Entered")
+	defer MyLogger.Info("Exit")
+}
+
+func testFunc2() {
+	MyLogger.Info("Entered")
+	defer MyLogger.Info("Exit")
+	testFunc3()
+}
+
+func testFunc1() {
+	MyLogger.Info("Entered")
+	defer MyLogger.Info("Exit")
+	// anonymous struct to test logging an object
+	msg := struct {
+		Message   string
+		Timestamp int64
+	}{}
+
+	msg.Message = "hello!"
+	msg.Timestamp = time.Now().UnixNano()
+	MyLogger.Debugf("MyLogger: %#v", msg)
+	msg.Message = "bonjour!"
+	msg.Timestamp = time.Now().UnixNano()
+	MyLogger.Infof("MyLogger: %#v", msg)
+	msg.Message = "hola!"
+	msg.Timestamp = time.Now().UnixNano()
+	MyLogger.Warnf("MyLogger: %#v", msg)
+	msg.Message = "oops!"
+	msg.Timestamp = time.Now().UnixNano()
+	MyLogger.Errorf("MyLogger: %#v", msg)
+
+	testFunc2()
+}
+
 func main() {
 	//console()
 
@@ -134,26 +171,7 @@ func main() {
 		panic(err)
 	}
 
-	// anonymous struct to test logging an object
-	msg := struct {
-		Message   string
-		Timestamp int64
-	}{}
-
-	MyLogger.Info("Logging started")
-	msg.Message = "hello!"
-	msg.Timestamp = time.Now().UnixNano()
-	MyLogger.Debugf("MyLogger: %#v", msg)
-	msg.Message = "bonjour!"
-	msg.Timestamp = time.Now().UnixNano()
-	MyLogger.Infof("MyLogger: %#v", msg)
-	msg.Message = "hola!"
-	msg.Timestamp = time.Now().UnixNano()
-	MyLogger.Warnf("MyLogger: %#v", msg)
-	msg.Message = "oops!"
-	msg.Timestamp = time.Now().UnixNano()
-	MyLogger.Errorf("MyLogger: %#v", msg)
-	MyLogger.Info("Logging ended")
+	testFunc1()
 
 	// Without logger wrapper
 	/*
