@@ -5,13 +5,13 @@ if [ -z "$1" ]; then
     exit 1 # Exit the script with an error code
 fi
 
-EL_PASSWORD=$1
+ES_PASSWORD=$1
 
 # Start below commands only after elasticsearch is totally started
 # ERROR: Failed to determine the health of the cluster., with exit code 69
 # Check docker logs es01
 
-printf "$1\n$1" | docker exec -i es01 /usr/share/elasticsearch/bin/elasticsearch-reset-password -b -i -u elastic
+printf "$ES_PASSWORD\n$ES_PASSWORD" | docker exec -i es01 /usr/share/elasticsearch/bin/elasticsearch-reset-password -b -i -u elastic
 #docker exec -it es01 /usr/share/elasticsearch/bin/elasticsearch-reset-password -s -u elastic
 echo "elasticsearch-reset-password done"
 
@@ -21,8 +21,8 @@ echo "ca cert copied"
 
 echo "kibana token generating"
 echo
-EL_TOKEN=$(docker exec -it es01 /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -f -s kibana)
-echo "$EL_TOKEN"
+ES_TOKEN=$(docker exec -it es01 /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -f -s kibana)
+echo "$ES_TOKEN"
 echo
 
 echo "kib01 starting..."
