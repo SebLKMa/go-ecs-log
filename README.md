@@ -167,13 +167,6 @@ func main() {
 
 	// 3. Add the hook to the logger
 	log.Hooks.Add(hook)
-
-	// 4. Log messages
-	log.WithFields(logrus.Fields{"user": "testuser", "action": "login"}).Info("User logged in successfully")
-	log.Error("An error occurred during processing")
-
-	// Keep application running briefly to allow logs to send
-	// time.Sleep(2 * time.Second)
 }
 ```
 
@@ -214,12 +207,45 @@ func main() {
 
 	// 4. Add the hook to the logger
 	log.Hooks.Add(hook)
-
-	// 5. Log messages (they go to Azure asynchronously)
-	log.WithFields(logrus.Fields{"user": "john_doe", "action": "login"}).Info("User logged in successfully")
-	log.WithField("error", "connection_failed").Error("Failed to connect to service")
 }
+```
 
+Example 3:  
+```go
+package main
+
+import (
+    "github.com/sirupsen/logrus"
+    "gopkg.in/go-extras/elogrus.v7" // Or your chosen version
+    "github.com/elastic/go-elasticsearch/v8" // Example for ES client
+    "context"
+)
+
+func main() {
+    // 1. Initialize Elasticsearch Client (optional if using basic http)
+    // For ES 8+, you might need the go-elasticsearch client:
+    // cfg := elasticsearch.Config{Addresses: []string{"YOUR_AZURE_ENDPOINT"}}
+    // esClient, err := elasticsearch.NewClient(cfg)
+    // if err != nil { logrus.Fatal(err) }
+
+    // 2. Get your endpoint and API key
+    azureESEndpoint := "https://YOUR_DEPLOYMENT_ID.eastus.azure.elastic.cloud:9243"
+    apiKey := "YOUR_API_KEY" // From Elastic Cloud console
+
+    // 3. Create the elogrus hook
+    // Using basic HTTP with API Key:
+    hook, err := elogrus.NewAsyncElasticHook(azureESEndpoint, "your-log-index", logrus.InfoLevel, apiKey)
+    if err != nil {
+        logrus.Fatal(err)
+    }
+
+    // 4. Add the hook to your logger
+    log := logrus.New()
+    log.AddHook(hook)
+
+    // 5. Set formatter (optional, but recommended for ECS)
+    log.SetFormatter(&ecslogrus.Formatter{}) // Requires go.elastic.co/ecslogrus
+}
 ```
 
 ## A Local Sample Kibana
