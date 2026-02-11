@@ -170,7 +170,7 @@ func fileInfo(skip int) string {
 func (lw *LoggerWrapper) Error(args ...interface{}) {
 	if lw.InternalLogger.Level >= logrus.ErrorLevel {
 		entry := lw.InternalLogger.WithFields(logrus.Fields{})
-		entry.Data["srcfile"] = fileInfo(2)
+		entry.Data["srcfile"] = fileInfo(2) // file will be updated by logrus, changed file to custom srcfile
 		entry.Data["ts"] = timestampNow()
 
 		fmt.Printf("srcfile: %v\n", entry.Data["srcfile"])
