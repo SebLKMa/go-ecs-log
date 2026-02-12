@@ -3,4 +3,5 @@ docker run -d --name es01 --net elastic -p 9200:9200 -it -m 1GB docker.elastic.c
 sleep 8
 echo "es01 started"
 
-docker logs es01
+# Check docker logs es01
+docker logs es01 | grep GREEN

@@ -10,6 +10,7 @@ ES_PASSWORD=$1
 # Start below commands only after elasticsearch is totally started
 # ERROR: Failed to determine the health of the cluster., with exit code 69
 # Check docker logs es01
+# docker logs es01 | grep GREEN
 
 printf "$ES_PASSWORD\n$ES_PASSWORD" | docker exec -i es01 /usr/share/elasticsearch/bin/elasticsearch-reset-password -b -i -u elastic
 #docker exec -it es01 /usr/share/elasticsearch/bin/elasticsearch-reset-password -s -u elastic
@@ -30,4 +31,5 @@ docker run -d --name kib01 --net elastic -p 5601:5601 docker.elastic.co/kibana/k
 sleep 10
 echo "kib01 started"
 
-docker logs kib01
+# Check docker logs
+#docker logs kib01
